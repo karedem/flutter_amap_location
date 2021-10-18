@@ -14,8 +14,7 @@ dependencies:
   cupertino_icons: ^0.1.2
 
   async_loader:
-  simple_permissions:
-  easy_alert:
+  permission_handler:
 
 dev_dependencies:
   flutter_test:

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:amap_location/amap_location.dart';
-import 'package:simple_permissions/simple_permissions.dart';
-import 'package:easy_alert/easy_alert.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-void main() {
+import 'ghutils.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   /*============*/
   //设置ios的key
   /*=============*/
-  AMapLocationClient.setApiKey("a5bae506b2d053ed4ae7827f38b1766d");
+  await AMapLocationClient.setApiKey("225455a9794750b2ee7167e6f16fd685");
   /*============*/
   //设置ios的key
   /*=============*/
@@ -38,20 +40,22 @@ class _LocationGetState extends State {
   }
 
   void _checkPersmission() async {
-    bool hasPermission =
-        await SimplePermissions.checkPermission(Permission.WhenInUseLocation);
-    if (!hasPermission) {
+    var hasPermission = await Permission.locationWhenInUse.status;
+    if (!hasPermission.isGranted) {
       PermissionStatus requestPermissionResult =
-          await SimplePermissions.requestPermission(
-              Permission.WhenInUseLocation);
-      if (requestPermissionResult != PermissionStatus.authorized) {
-        Alert.alert(context, title: "申请定位权限失败");
+          await Permission.locationWhenInUse.request();
+      if (requestPermissionResult.isDenied) {
+        print("申请定位权限失败");
         return;
       }
     }
-    AMapLocation loc = await AMapLocationClient.getLocation(true);
+    AMapLocation location = await GHUtil.getLocation();
+    if (location == null) {
+      Navigator.of(context).pop();
+      return;
+    }
     setState(() {
-      _loc = loc;
+      _loc = location;
     });
   }
 
@@ -106,14 +110,12 @@ class _LocationListenState extends State {
   }
 
   void _checkPersmission() async {
-    bool hasPermission =
-        await SimplePermissions.checkPermission(Permission.WhenInUseLocation);
-    if (!hasPermission) {
+    var hasPermission = await Permission.locationWhenInUse.status;
+    if (!hasPermission.isGranted) {
       PermissionStatus requestPermissionResult =
-          await SimplePermissions.requestPermission(
-              Permission.WhenInUseLocation);
-      if (requestPermissionResult != PermissionStatus.authorized) {
-        Alert.alert(context, title: "申请定位权限失败");
+          await Permission.locationWhenInUse.request();
+      if (requestPermissionResult.isDenied) {
+        print("申请定位权限失败");
         return;
       }
     }
